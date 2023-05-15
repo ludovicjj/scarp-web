@@ -168,7 +168,7 @@ class Scraper
     {
         $pdfNode = $crawler->filterXPath('//p[@class="tags formation-options"]/a[@href and @target]');
         if ($pdfNode->count()) {
-            return 'https://wwww.m2iformation.fr/' . $pdfNode->first()->attr('href');
+            return 'https://www.m2iformation.fr/' . $pdfNode->first()->attr('href');
         }
 
         return null;
