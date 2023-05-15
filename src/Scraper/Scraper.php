@@ -241,15 +241,24 @@ class Scraper
                 $h3Node = $linkFormation->filterXPath('parent::h3');
                 $isBestNode = $linkFormation->filterXPath('ancestor::article[contains(@class, "is_essentiel")]');
                 if ($h3Node->count()) {
-                    $h3Node->filterXPath('.//sup')->each(function (Crawler $sup) use (&$badges) {
-                        if ($sup->text() === self::BADGE_TOP) {
-                            $badges['top'] = true;
+                    $sup = $h3Node->filterXPath('.//sup');
+                    if ($sup->count()) {
+
+                        if ($sup->text() === "") {
+                            $seeMoreNode = $crawler->filter('a.show-more-results');
+                            if ($seeMoreNode->count()) {
+                                $client->click($seeMoreNode->link());
+                            }
                         }
 
-                        if ($sup->text() === self::BADGE_NEW) {
+                        if (str_contains($sup->text(), self::BADGE_TOP)) {
+                            $badges['top'] = true;
+                        }
+                        if (str_contains($sup->text(), self::BADGE_NEW)) {
                             $badges['new'] = true;
                         }
-                    });
+
+                    }
                 }
 
                 if ($isBestNode->count()) {

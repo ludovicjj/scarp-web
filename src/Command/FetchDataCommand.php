@@ -37,7 +37,7 @@ class FetchDataCommand extends Command
 
         $collections = [];
 
-        $this->send("https://www.m2iformation.fr/formation-access-initiation-creer-et-utiliser-une-base-de-donnees/ACC-IN/", $collections);
+        $this->send("https://www.m2iformation.fr/formation-angular-2-a-13-fonctionnalites-avancees/JVS-ANGAV/", $collections);
 //        for ($i = 0; $i < 2; $i++) {
 //            try {
 //                $this->send($urls[$i], $collections);
