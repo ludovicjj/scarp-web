@@ -37,16 +37,17 @@ class FetchDataCommand extends Command
 
         $collections = [];
 
-        for ($i = 0; $i < 2; $i++) {
-            try {
-                $this->send($urls[$i], $collections);
-                $io->progressAdvance();
-                sleep(1);
-            } catch (\Exception) {
-                $io->error('Failed step ' . $i . ' - ' . $urls[$i]);
-                return Command::FAILURE;
-            }
-        }
+        $this->send("https://www.m2iformation.fr/formation-access-initiation-creer-et-utiliser-une-base-de-donnees/ACC-IN/", $collections);
+//        for ($i = 0; $i < 2; $i++) {
+//            try {
+//                $this->send($urls[$i], $collections);
+//                $io->progressAdvance();
+//                sleep(1);
+//            } catch (\Exception) {
+//                $io->error('Failed step ' . $i . ' - ' . $urls[$i]);
+//                return Command::FAILURE;
+//            }
+//        }
 
         $this->excelService->createXlsx($collections);
 
@@ -91,6 +92,8 @@ class FetchDataCommand extends Command
         $data->cpf = $this->scraper->scrapCPF($crawler);
         $data->category = $this->scraper->scrapCategory($crawler);
         $data->ref = $this->scraper->scrapRef($url);
+        $data->certify = $this->scraper->scrapCertifying($crawler);
+        $data->opca = $this->scraper->scrapOPCA($crawler);
 
         /** @var array badges */
         $data->badges = $this->scraper->scrapBadges($crawler, $url, $client);
@@ -121,27 +124,30 @@ class FetchDataCommand extends Command
     private function addCollection(stdClass $data, array &$collections): void
     {
         $collections[] = [
-            'title_concurrent' => $data->title,
-            'duree_totale_en_jours' => $data->fullDate['day'] ?? '',
-            'duree_heure' => $data->fullDate['hour'] ?? '',
-            'prix_formation' => $data->price,
-            'sessions_paris_presentiel' => $data->paris,
-            'sessions_a_distance' => $data->online,
-            'sessions_lyon_presentiel' => $data->lyon,
-            'sessions_nantes_presentiel' => $data->nantes,
-            'sessions_toulouse_presentiel' => $data->toulouse,
-            'sessions_lille_presentiel' => $data->lille,
-            'sessions_bordeaux_presentiel' => $data->bordeaux,
-            'sessions_marseille_presentiel' => $data->marseille,
-            'sessions_autres_regions_presentiel' => $data->other,
-            'commentaire' => $data->comment,
-            'lien' => $data->url,
-            'pdf' => $data->pdf,
-            'cpf' => $data->cpf,
-            'categorie' => $data->category,
-            'reference_concurent' => $data->ref,
-            'nouveaute' => $data->badges['new'],
-            'top_vente' => $data->badges['top']
+            'categorie'                             => $data->category,
+            'best'                                  => $data->badges['best'],
+            'top_vente'                             => $data->badges['top'],
+            'certifiant'                            => $data->certify,
+            'cpf'                                   => $data->cpf,
+            'nouveaute'                             => $data->badges['new'],
+            'opca'                                  => $data->opca,
+            'reference_concurent'                   => $data->ref,
+            'title_concurrent'                      => $data->title,
+            'duree_totale_en_jours'                 => $data->fullDate['day'] ?? '',
+            'duree_heure'                           => $data->fullDate['hour'] ?? '',
+            'prix_formation'                        => $data->price,
+            'sessions_paris_presentiel'             => $data->paris,
+            'sessions_a_distance'                   => $data->online,
+            'sessions_lyon_presentiel'              => $data->lyon,
+            'sessions_nantes_presentiel'            => $data->nantes,
+            'sessions_toulouse_presentiel'          => $data->toulouse,
+            'sessions_lille_presentiel'             => $data->lille,
+            'sessions_bordeaux_presentiel'          => $data->bordeaux,
+            'sessions_marseille_presentiel'         => $data->marseille,
+            'sessions_autres_regions_presentiel'    => $data->other,
+            'commentaire'                           => $data->comment,
+            'lien'                                  => $data->url,
+            'pdf'                                   => $data->pdf,
         ];
     }
 }

@@ -51,6 +51,16 @@ class ExcelService
         $sheet->setCellValue('AC1', 'Lien');
         $sheet->setCellValue('AD1', 'PDF');
 
+        $columns = [
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+            'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+            'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD'
+        ];
+        //->setWidth(20);
+        foreach ($columns as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
         // commence a ecrire a la row 2
         $row = 2;
 
@@ -61,13 +71,13 @@ class ExcelService
             $sheet->setCellValue('D' . $row, '');
             $sheet->setCellValue('E' . $row, '');
             $sheet->setCellValue('F' . $row, '');
-            $sheet->setCellValue('G' . $row, '');
+            $sheet->setCellValue('G' . $row, $value['best']);
             $sheet->setCellValue('H' . $row, $value['top_vente']);
-            $sheet->setCellValue('I' . $row, '');
+            $sheet->setCellValue('I' . $row, $value['certifiant']);
             $sheet->setCellValue('J' . $row, $value['cpf']);
             $sheet->setCellValue('K' . $row, '');
             $sheet->setCellValue('L' . $row, $value['nouveaute']);
-            $sheet->setCellValue('M' . $row, '');
+            $sheet->setCellValue('M' . $row, $value['opca']);
             $sheet->setCellValue('N' . $row, $value['reference_concurent']);
             $sheet->setCellValue('O' . $row, $value['title_concurrent']);
             $sheet->setCellValue('P' . $row, $value['duree_totale_en_jours']);

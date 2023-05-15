@@ -183,6 +183,15 @@ class Scraper
         return false;
     }
 
+    public function scrapOPCA(Crawler $crawler): bool
+    {
+        $cpfNode = $crawler->filterXPath('//p[@class="infos signika"]/span/a[contains(text(),"AC")]');
+        if ($cpfNode->count()) {
+            return true;
+        }
+        return false;
+    }
+
     public function scrapCategory(Crawler $crawler): ?string
     {
         $categoryNode = $crawler->filterXPath('//div[@class="ariane"]//a');
@@ -200,11 +209,22 @@ class Scraper
         return $matches[1] ?? null;
     }
 
+    public function scrapCertifying(Crawler $crawler): bool
+    {
+        $certifyNode = $crawler->filterXPath('//header[@id="header"]/div[@class="center large signika"]/p[@class="infos signika" and contains(.,"Code RS ou RNCP")]');
+        if ($certifyNode->count()) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function scrapBadges(Crawler $crawler, string $url, Client $client): array
     {
         $badges = [
             'top' => false,
-            'new' => false
+            'new' => false,
+            'best' => false
         ];
 
         $categoryNode = $crawler->filterXPath('//div[@class="ariane"]//a');
@@ -218,7 +238,8 @@ class Scraper
 
 
             if ($linkFormation->count()) {
-                $h3Node = $linkFormation->first()->filterXPath('parent::h3');
+                $h3Node = $linkFormation->filterXPath('parent::h3');
+                $isBestNode = $linkFormation->filterXPath('ancestor::article[contains(@class, "is_essentiel")]');
                 if ($h3Node->count()) {
                     $h3Node->filterXPath('.//sup')->each(function (Crawler $sup) use (&$badges) {
                         if ($sup->text() === self::BADGE_TOP) {
@@ -229,6 +250,10 @@ class Scraper
                             $badges['new'] = true;
                         }
                     });
+                }
+
+                if ($isBestNode->count()) {
+                    $badges['best'] = true;
                 }
             }
         }
