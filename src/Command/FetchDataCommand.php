@@ -4,13 +4,13 @@ namespace App\Command;
 
 use App\Repository\UrlRepository;
 use App\Scraper\Scraper;
-use App\Service\ExcelService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Panther\Client;
 use stdClass;
 
@@ -20,7 +20,8 @@ class FetchDataCommand extends Command
     public function __construct(
         private UrlRepository $urlRepository,
         private Scraper $scraper,
-        private ExcelService $excelService,
+        private Filesystem $filesystem,
+        private string $path,
         string $name = null
     )
     {
@@ -33,40 +34,42 @@ class FetchDataCommand extends Command
         $urls = $this->urlRepository->findAll();
 
         $io->progressStart(count($urls));
+        $index = $this->initOrGetLastIndex();
 
-
-        $collections = [];
-
-        $this->send("https://www.m2iformation.fr/formation-angular-2-a-13-fonctionnalites-avancees/JVS-ANGAV/", $collections);
-//        for ($i = 0; $i < 2; $i++) {
-//            try {
-//                $this->send($urls[$i], $collections);
-//                $io->progressAdvance();
-//                sleep(1);
-//            } catch (\Exception) {
-//                $io->error('Failed step ' . $i . ' - ' . $urls[$i]);
-//                return Command::FAILURE;
-//            }
-//        }
-
-        $this->excelService->createXlsx($collections);
+        //$this->send("https://www.m2iformation.fr/formation-angular-2-a-13-fonctionnalites-avancees/JVS-ANGAV/", $collections);
+        for ($i = $index; $i < 200; $i++) {
+            try {
+                $this->send($urls[$i], $i);
+                $io->progressAdvance();
+                $this->filesystem->dumpFile($this->path.'/index.txt', $i);
+                sleep(1);
+            } catch (\Exception) {
+                $io->error('Failed step ' . $i . ' - ' . $urls[$i]);
+                return Command::FAILURE;
+            }
+        }
 
         $io->progressFinish();
         $io->success('Fetch Data completed');
         return Command::SUCCESS;
     }
 
-    private function send(string $url, array &$collections): void
+    private function send(string $url, int $index): void
     {
         $client = Client::createFirefoxClient();
         $crawler = $client->request('GET', $url);
         $data = $this->initData($crawler, $url, $client);
 
-        if (!$this->isValidUrl($data)) {
-            $this->urlRepository->remove($url);
-        } else {
-            $this->addCollection($data, $collections);
-        }
+
+        $result = $this->createCollection($data);
+
+        $json = file_get_contents($this->path.'/result.json');
+        $data = json_decode($json, true);
+
+        $data['result'][$index] = $result;
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $this->filesystem->dumpFile($this->path. '/result.json', $json);
     }
 
     private function initData(Crawler $crawler, string $url, Client $client): stdClass
@@ -76,7 +79,6 @@ class FetchDataCommand extends Command
 
         /** @var array fullDate */
         $data->fullDate = $this->scraper->scrapFullDate($crawler);
-        $data->price = $this->scraper->scrapPrice($crawler);
         $data->paris = $this->scraper->scrapParisCount($crawler);
         $data->lyon = $this->scraper->scrapLyonCount($crawler);
         $data->nantes = $this->scraper->scrapNantesCount($crawler);
@@ -121,9 +123,20 @@ class FetchDataCommand extends Command
         return true;
     }
 
-    private function addCollection(stdClass $data, array &$collections): void
+    private function initOrGetLastIndex(): int
     {
-        $collections[] = [
+        if (!$this->filesystem->exists($this->path . '/index.txt')) {
+            $this->filesystem->dumpFile($this->path . '/index.txt', "0");
+
+            return 0;
+        }
+
+        return (int)file_get_contents($this->path . '/index.txt');
+    }
+
+    private function createCollection(stdClass $data): array
+    {
+        $collections = [
             'categorie'                             => $data->category,
             'best'                                  => $data->badges['best'],
             'top_vente'                             => $data->badges['top'],
@@ -135,7 +148,7 @@ class FetchDataCommand extends Command
             'title_concurrent'                      => $data->title,
             'duree_totale_en_jours'                 => $data->fullDate['day'] ?? '',
             'duree_heure'                           => $data->fullDate['hour'] ?? '',
-            'prix_formation'                        => $data->price,
+            'prix_formation'                        => $data->badges['price'],
             'sessions_paris_presentiel'             => $data->paris,
             'sessions_a_distance'                   => $data->online,
             'sessions_lyon_presentiel'              => $data->lyon,
@@ -149,5 +162,7 @@ class FetchDataCommand extends Command
             'lien'                                  => $data->url,
             'pdf'                                   => $data->pdf,
         ];
+
+        return $collections;
     }
 }

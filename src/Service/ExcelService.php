@@ -65,37 +65,40 @@ class ExcelService
         $row = 2;
 
         foreach ($collections as $value) {
-            $sheet->setCellValue('A' . $row, 'm2iformation');
-            $sheet->setCellValue('B' . $row, $value['categorie']);
-            $sheet->setCellValue('C' . $row, '');
-            $sheet->setCellValue('D' . $row, '');
-            $sheet->setCellValue('E' . $row, '');
-            $sheet->setCellValue('F' . $row, '');
-            $sheet->setCellValue('G' . $row, $value['best']);
-            $sheet->setCellValue('H' . $row, $value['top_vente']);
-            $sheet->setCellValue('I' . $row, $value['certifiant']);
-            $sheet->setCellValue('J' . $row, $value['cpf']);
-            $sheet->setCellValue('K' . $row, '');
-            $sheet->setCellValue('L' . $row, $value['nouveaute']);
-            $sheet->setCellValue('M' . $row, $value['opca']);
-            $sheet->setCellValue('N' . $row, $value['reference_concurent']);
-            $sheet->setCellValue('O' . $row, $value['title_concurrent']);
-            $sheet->setCellValue('P' . $row, $value['duree_totale_en_jours']);
-            $sheet->setCellValue('Q' . $row, $value['duree_heure']);
-            $sheet->setCellValue('R' . $row, $value['prix_formation']);
-            $sheet->setCellValue('S' . $row, $value['sessions_paris_presentiel']);
-            $sheet->setCellValue('T' . $row, $value['sessions_a_distance']);
-            $sheet->setCellValue('U' . $row, $value['sessions_lyon_presentiel']);
-            $sheet->setCellValue('V' . $row, $value['sessions_nantes_presentiel']);
-            $sheet->setCellValue('W' . $row, $value['sessions_toulouse_presentiel']);
-            $sheet->setCellValue('X' . $row, $value['sessions_lille_presentiel']);
-            $sheet->setCellValue('Y' . $row, $value['sessions_bordeaux_presentiel']);
-            $sheet->setCellValue('Z' . $row, $value['sessions_marseille_presentiel']);
-            $sheet->setCellValue('AA' . $row, $value['sessions_autres_regions_presentiel']);
-            $sheet->setCellValue('AB' . $row, $value['commentaire']);
-            $sheet->setCellValue('AC' . $row, $value['lien']);
-            $sheet->setCellValue('AD' . $row, $value['pdf']);
-            $row++;
+
+            if ($value['title_concurrent'] !== "Trouvez votre formation en Classe à Distance parmi nos 2 400 formations") {
+                $sheet->setCellValue('A' . $row, 'm2iformation');
+                $sheet->setCellValue('B' . $row, $value['categorie']);
+                $sheet->setCellValue('C' . $row, '');
+                $sheet->setCellValue('D' . $row, '');
+                $sheet->setCellValue('E' . $row, '');
+                $sheet->setCellValue('F' . $row, '');
+                $sheet->setCellValue('G' . $row, $value['best']);
+                $sheet->setCellValue('H' . $row, $value['top_vente']);
+                $sheet->setCellValue('I' . $row, $value['certifiant']);
+                $sheet->setCellValue('J' . $row, $value['cpf']);
+                $sheet->setCellValue('K' . $row, '');
+                $sheet->setCellValue('L' . $row, $value['nouveaute']);
+                $sheet->setCellValue('M' . $row, $value['opca']);
+                $sheet->setCellValue('N' . $row, $value['reference_concurent']);
+                $sheet->setCellValue('O' . $row, $value['title_concurrent']);
+                $sheet->setCellValue('P' . $row, $value['duree_totale_en_jours']);
+                $sheet->setCellValue('Q' . $row, $value['duree_heure']);
+                $sheet->setCellValue('R' . $row, $value['prix_formation']);
+                $sheet->setCellValue('S' . $row, $value['sessions_paris_presentiel']);
+                $sheet->setCellValue('T' . $row, $value['sessions_a_distance']);
+                $sheet->setCellValue('U' . $row, $value['sessions_lyon_presentiel']);
+                $sheet->setCellValue('V' . $row, $value['sessions_nantes_presentiel']);
+                $sheet->setCellValue('W' . $row, $value['sessions_toulouse_presentiel']);
+                $sheet->setCellValue('X' . $row, $value['sessions_lille_presentiel']);
+                $sheet->setCellValue('Y' . $row, $value['sessions_bordeaux_presentiel']);
+                $sheet->setCellValue('Z' . $row, $value['sessions_marseille_presentiel']);
+                $sheet->setCellValue('AA' . $row, $value['sessions_autres_regions_presentiel']);
+                $sheet->setCellValue('AB' . $row, $value['commentaire']);
+                $sheet->setCellValue('AC' . $row, $value['lien']);
+                $sheet->setCellValue('AD' . $row, $value['pdf']);
+                $row++;
+            }
         }
 
         // Créer un nouveau writer pour générer le fichier Excel

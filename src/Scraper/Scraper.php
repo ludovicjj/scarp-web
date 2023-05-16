@@ -224,7 +224,8 @@ class Scraper
         $badges = [
             'top' => false,
             'new' => false,
-            'best' => false
+            'best' => false,
+            'price' => null,
         ];
 
         $categoryNode = $crawler->filterXPath('//div[@class="ariane"]//a');
@@ -240,17 +241,17 @@ class Scraper
             if ($linkFormation->count()) {
                 $h3Node = $linkFormation->filterXPath('parent::h3');
                 $isBestNode = $linkFormation->filterXPath('ancestor::article[contains(@class, "is_essentiel")]');
+
+                // enable show more
+                $seeMoreNode = $crawler->filter('a.show-more-results');
+                if ($seeMoreNode->count()) {
+                    $client->click($seeMoreNode->link());
+                }
+
+                // badge
                 if ($h3Node->count()) {
                     $sup = $h3Node->filterXPath('.//sup');
                     if ($sup->count()) {
-
-                        if ($sup->text() === "") {
-                            $seeMoreNode = $crawler->filter('a.show-more-results');
-                            if ($seeMoreNode->count()) {
-                                $client->click($seeMoreNode->link());
-                            }
-                        }
-
                         if (str_contains($sup->text(), self::BADGE_TOP)) {
                             $badges['top'] = true;
                         }
@@ -261,6 +262,16 @@ class Scraper
                     }
                 }
 
+                // price
+                $articleNode = $h3Node->filterXPath('ancestor::article');
+                if ($articleNode->count()) {
+                    $priceNode = $articleNode->filterXPath('.//p[@class="price"]');
+                    if ($priceNode->count()) {
+                        $badges['price'] = $priceNode->text();
+                    }
+                }
+
+                // best
                 if ($isBestNode->count()) {
                     $badges['best'] = true;
                 }

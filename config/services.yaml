@@ -29,6 +29,12 @@ services:
     App\Command\FetchUrlCommand:
         arguments:
             $url: '%app.site_map_url%'
+    App\Command\FetchDataCommand:
+        arguments:
+            $path: '%kernel.project_dir%/var/result'
+    App\Command\ExcelCommand:
+        arguments:
+            $path: '%kernel.project_dir%/var/result'
 
     App\Repository\UrlRepository:
         arguments:
