@@ -36,8 +36,8 @@ class FetchDataCommand extends Command
         $io->progressStart(count($urls));
         $index = $this->initOrGetLastIndex();
 
-        //$this->send("https://www.m2iformation.fr/formation-angular-2-a-13-fonctionnalites-avancees/JVS-ANGAV/", $collections);
-        for ($i = $index; $i < 200; $i++) {
+        //$this->send("https://www.m2iformation.fr/formation-acculturation-numerique-et-transformation-digitale-de-l-entreprise/ACD-TRANS/", 0);
+        for ($i = $index; $i < count($urls); $i++) {
             try {
                 $this->send($urls[$i], $i);
                 $io->progressAdvance();
@@ -79,6 +79,8 @@ class FetchDataCommand extends Command
 
         /** @var array fullDate */
         $data->fullDate = $this->scraper->scrapFullDate($crawler);
+        $data->libDispForm = $this->scraper->scrapLibDispForm($crawler);
+        $data->modes = $this->scraper->scrapModes($crawler);
         $data->paris = $this->scraper->scrapParisCount($crawler);
         $data->lyon = $this->scraper->scrapLyonCount($crawler);
         $data->nantes = $this->scraper->scrapNantesCount($crawler);
@@ -138,6 +140,8 @@ class FetchDataCommand extends Command
     {
         $collections = [
             'categorie'                             => $data->category,
+            'modalites'                             => $data->modes,
+            'lib_disp_form'                         => $data->libDispForm,
             'best'                                  => $data->badges['best'],
             'top_vente'                             => $data->badges['top'],
             'certifiant'                            => $data->certify,

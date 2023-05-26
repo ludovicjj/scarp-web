@@ -69,10 +69,10 @@ class ExcelService
             if ($value['title_concurrent'] !== "Trouvez votre formation en Classe à Distance parmi nos 2 400 formations") {
                 $sheet->setCellValue('A' . $row, 'm2iformation');
                 $sheet->setCellValue('B' . $row, $value['categorie']);
-                $sheet->setCellValue('C' . $row, '');
-                $sheet->setCellValue('D' . $row, '');
-                $sheet->setCellValue('E' . $row, '');
-                $sheet->setCellValue('F' . $row, '');
+                $sheet->setCellValue('C' . $row, $value['lib_disp_form']);
+                $sheet->setCellValue('D' . $row, $value['modalites'][0] ?? null);
+                $sheet->setCellValue('E' . $row, $value['modalites'][1] ?? null);
+                $sheet->setCellValue('F' . $row, $value['modalites'][2] ?? null);
                 $sheet->setCellValue('G' . $row, $value['best']);
                 $sheet->setCellValue('H' . $row, $value['top_vente']);
                 $sheet->setCellValue('I' . $row, $value['certifiant']);

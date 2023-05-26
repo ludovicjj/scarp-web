@@ -219,6 +219,41 @@ class Scraper
         return false;
     }
 
+    public function scrapLibDispForm(Crawler $crawler): string
+    {
+        $fullTitleNode = $crawler->filterXPath('//header[@id="header"]//h1');
+
+        if ($fullTitleNode->count()) {
+            $text = $fullTitleNode->text();
+            if (str_contains($text, 'certification')) {
+                return "stage certifiant";
+            }
+        }
+
+        return "stage";
+    }
+
+    public function scrapModes(Crawler $crawler): array
+    {
+        $modes = [];
+
+        $colNodes = $crawler->filterXPath('//div[@id="calendar-select"]//div[@class="blocks signika to-adjust"]//div[@class="col"]');
+        if ($colNodes->count()) {
+            $modeContainerNode = $colNodes->first();
+            $modeNode = $modeContainerNode->filterXPath('//p[@class="adjust"]//strong');
+            if ($modeNode->count()) {
+                $modeText = $modeNode->text();
+                $modeArray = explode(',', $modeText);
+                foreach ($modeArray as $mode) {
+                    $modes[] = $mode;
+                }
+                return $modes;
+            }
+        }
+
+        return $modes;
+    }
+
     public function scrapBadges(Crawler $crawler, string $url, Client $client): array
     {
         $badges = [
