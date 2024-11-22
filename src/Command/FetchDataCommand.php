@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Panther\Client;
+use Symfony\Component\Console\Helper\Table;
 use stdClass;
 
 #[AsCommand(name: 'app:fetch-data')]
@@ -33,18 +34,31 @@ class FetchDataCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $urls = $this->urlRepository->findAll();
 
-        $io->progressStart(count($urls));
-        $index = $this->initOrGetLastIndex();
 
-        //$this->send("https://www.m2iformation.fr/formation-acculturation-numerique-et-transformation-digitale-de-l-entreprise/ACD-TRANS/", 0);
-        for ($i = $index; $i < count($urls); $i++) {
+        $index = $this->initOrGetLastIndex();
+        $io->progressStart(count($urls) - $index);
+
+        //$this->send("https://www.m2iformation.fr/formation-word-initiation-etre-operationnel-pour-creer-des-documents-simples/WOR-IN/", 0);
+
+        //for ($i = $index; $i < count($urls); $i++) {
+        for ($i = $index; $i < 1; $i++) {
             try {
                 $this->send($urls[$i], $i);
                 $io->progressAdvance();
                 $this->filesystem->dumpFile($this->path.'/index.txt', $i);
                 sleep(1);
-            } catch (\Exception) {
-                $io->error('Failed step ' . $i . ' - ' . $urls[$i]);
+            } catch (\Exception $exception) {
+                $table = new Table($output);
+                $table
+                    ->setHeaders(['step', 'URL', 'Message'])
+                    ->setRows([
+                        [
+                            'Failed step ' . $i,
+                            $urls[$i],
+                            $exception->getMessage()
+                        ]
+                    ]);
+                $table->render();
                 return Command::FAILURE;
             }
         }
@@ -58,8 +72,8 @@ class FetchDataCommand extends Command
     {
         $client = Client::createFirefoxClient();
         $crawler = $client->request('GET', $url);
+        $client->manage()->window()->maximize();
         $data = $this->initData($crawler, $url, $client);
-
 
         $result = $this->createCollection($data);
 
@@ -79,6 +93,7 @@ class FetchDataCommand extends Command
 
         /** @var array fullDate */
         $data->fullDate = $this->scraper->scrapFullDate($crawler);
+
         $data->libDispForm = $this->scraper->scrapLibDispForm($crawler);
         $data->modes = $this->scraper->scrapModes($crawler);
         $data->paris = $this->scraper->scrapParisCount($crawler);

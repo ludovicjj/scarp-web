@@ -176,20 +176,25 @@ class Scraper
 
     public function scrapCPF(Crawler $crawler): bool
     {
-        $cpfNode = $crawler->filterXPath('//p[@class="infos signika"]/span/a[contains(text(),"CPF")]');
-        if ($cpfNode->count()) {
-            return true;
+        $spanNode = $crawler->filterXPath('//header[@id="header"]//div[@style]/span');
+
+        if (!$spanNode->count()) {
+            return false;
         }
-        return false;
+
+        return str_contains($spanNode->text(), 'CPF');
     }
 
     public function scrapOPCA(Crawler $crawler): bool
     {
-        $cpfNode = $crawler->filterXPath('//p[@class="infos signika"]/span/a[contains(text(),"AC")]');
-        if ($cpfNode->count()) {
-            return true;
+        //$cpfNode = $crawler->filterXPath('//p[@class="infos signika"]/span/a[contains(text(),"AC")]');
+        $spanNode = $crawler->filterXPath('//header[@id="header"]//div[@style]/span');
+
+        if (!$spanNode->count()) {
+            return false;
         }
-        return false;
+
+        return str_contains($spanNode->text(), 'OPCO');
     }
 
     public function scrapCategory(Crawler $crawler): ?string

@@ -1,3 +1,19 @@
+## Fetch sitemap :
+```
+symfony console app:fetch-url
+```
+
+1. install symfony/panther
+2.  composer require --dev dbrekelmans/bdi
+3.    vendor/bin/bdi detect drivers
+
+## Fetch data :
+```
+symfony console app:fetch-data
+```
+
+## Helper :
+
 * //tagname : sélectionne tous les éléments qui correspondent au nom de balise tagname.
 
 * //tagname[@attribut='valeur'] : sélectionne tous les éléments qui ont un attribut attribut avec la valeur valeur.
