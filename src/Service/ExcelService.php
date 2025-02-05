@@ -26,9 +26,9 @@ class ExcelService
         $sheet->setCellValue('D1', 'Modalité');
         $sheet->setCellValue('E1', 'Modalité 2');
         $sheet->setCellValue('F1', 'Modalité 3');
-        $sheet->setCellValue('G1', 'Best');
-        $sheet->setCellValue('H1', 'TOP Vente');
-        $sheet->setCellValue('I1', 'Certifiant');
+        $sheet->setCellValue('G1', 'TOP Vente');
+        $sheet->setCellValue('H1', 'Certifiant');
+        $sheet->setCellValue('I1', 'Certification / Attestation de compétences');
         $sheet->setCellValue('J1', 'CPF');
         $sheet->setCellValue('K1', 'Diplomant');
         $sheet->setCellValue('L1', 'Nouveaute');
@@ -54,9 +54,9 @@ class ExcelService
         $columns = [
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
             'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-            'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD'
+            'U', 'V', 'W', 'X', 'Y', 'AA', 'AB', 'AC', 'AD'
         ];
-        //->setWidth(20);
+
         foreach ($columns as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
@@ -73,9 +73,9 @@ class ExcelService
                 $sheet->setCellValue('D' . $row, $value['modalites'][0] ?? null);
                 $sheet->setCellValue('E' . $row, $value['modalites'][1] ?? null);
                 $sheet->setCellValue('F' . $row, $value['modalites'][2] ?? null);
-                $sheet->setCellValue('G' . $row, $value['best']);
-                $sheet->setCellValue('H' . $row, $value['top_vente']);
-                $sheet->setCellValue('I' . $row, $value['certifiant']);
+                $sheet->setCellValue('G' . $row, $value['top_vente']);
+                $sheet->setCellValue('H' . $row, $value['certifiant']);
+                $sheet->setCellValue('I' . $row, $value['certifiantContent']);
                 $sheet->setCellValue('J' . $row, $value['cpf']);
                 $sheet->setCellValue('K' . $row, '');
                 $sheet->setCellValue('L' . $row, $value['nouveaute']);

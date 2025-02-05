@@ -45,9 +45,10 @@ class Scraper
         if (!$node->count()) {
             return $date;
         }
+
         $totalDate = $node->text();
 
-        if (preg_match('/(\d{1,2}[hH]\d{0,2})/', $totalDate, $matches)) {
+        if (preg_match('/(\d{1,3}[hH]\d{0,2})/', $totalDate, $matches)) {
             $date['hour'] = $matches[1];
         }
 
@@ -174,29 +175,6 @@ class Scraper
         return null;
     }
 
-    public function scrapCPF(Crawler $crawler): bool
-    {
-        $spanNode = $crawler->filterXPath('//header[@id="header"]//div[@style]/span');
-
-        if (!$spanNode->count()) {
-            return false;
-        }
-
-        return str_contains($spanNode->text(), 'CPF');
-    }
-
-    public function scrapOPCA(Crawler $crawler): bool
-    {
-        //$cpfNode = $crawler->filterXPath('//p[@class="infos signika"]/span/a[contains(text(),"AC")]');
-        $spanNode = $crawler->filterXPath('//header[@id="header"]//div[@style]/span');
-
-        if (!$spanNode->count()) {
-            return false;
-        }
-
-        return str_contains($spanNode->text(), 'OPCO');
-    }
-
     public function scrapCategory(Crawler $crawler): ?string
     {
         $categoryNode = $crawler->filterXPath('//div[@class="ariane"]//a');
@@ -216,12 +194,75 @@ class Scraper
 
     public function scrapCertifying(Crawler $crawler): bool
     {
-        $certifyNode = $crawler->filterXPath('//header[@id="header"]/div[@class="center large signika"]/p[@class="infos signika" and contains(.,"Code RS ou RNCP")]');
-        if ($certifyNode->count()) {
-            return true;
+        //$sectionNode = $crawler->filterXPath('//section[contains(@class, "grey") and contains(@class, "to-sticky")]');
+        $calendarNode = $crawler->filterXPath('//*[@id="calendar"]');
+        if ($calendarNode->count()) {
+            $certifyLink = $calendarNode->filterXPath('.//a[@href="diplomes-et-certifications/"]');
+            if ($certifyLink->count()) {
+                $filteredText = $certifyLink->filterXPath('./*[not(self::span)]')->each(function (Crawler $node) {
+                    return trim($node->text(null, true));  // Extraire le texte sans le span
+                });
+                return count($filteredText) > 0;
+            }
         }
 
         return false;
+    }
+
+    public function scrapCertifyingContent(Crawler $crawler): string
+    {
+        //$sectionNode = $crawler->filterXPath('//section[contains(@class, "grey") and contains(@class, "to-sticky")]');
+        $calendarNode = $crawler->filterXPath('//*[@id="calendar"]');
+
+        if ($calendarNode->count()) {
+            $certifyLink = $calendarNode->filterXPath('.//a[@href="diplomes-et-certifications/"]');
+            if ($certifyLink->count()) {
+                // $certifyingContent =  $certifyLink->text(null, true);
+
+                $filteredText = $certifyLink->filterXPath('./*[not(self::span)]')->each(function (Crawler $node) {
+                    return trim($node->text(null, true));  // Extraire le texte
+                });
+                return implode(' ', $filteredText);
+            }
+        }
+
+        return '';
+    }
+
+    public function scrapCPF(Crawler $crawler): bool
+    {
+        //$sectionNode = $crawler->filterXPath('//section[contains(@class, "grey") and contains(@class, "to-sticky")]');
+        $calendarNode = $crawler->filterXPath('//*[@id="calendar"]');
+        if ($calendarNode->count()) {
+            $fundingLink = $calendarNode->filterXPath('.//a[@href="financement/"]');
+            if ($fundingLink->count()) {
+               return str_contains($fundingLink->text(), 'CPF');
+            }
+        }
+
+        return false;
+    }
+
+    public function scrapOPCA(Crawler $crawler): bool
+    {
+        $calendarNode = $crawler->filterXPath('//*[@id="calendar"]');
+        if ($calendarNode->count()) {
+            $fundingLink = $calendarNode->filterXPath('.//a[@href="financement/"]');
+            if ($fundingLink->count()) {
+                return str_contains($fundingLink->text(), 'Actions-CO');
+            }
+        }
+
+        return false;
+
+//        //$cpfNode = $crawler->filterXPath('//p[@class="infos signika"]/span/a[contains(text(),"AC")]');
+//        $spanNode = $crawler->filterXPath('//header[@id="header"]//div[@style]/span');
+//
+//        if (!$spanNode->count()) {
+//            return false;
+//        }
+//
+//        return str_contains($spanNode->text(), 'OPCO');
     }
 
     public function scrapLibDispForm(Crawler $crawler): string
@@ -250,7 +291,7 @@ class Scraper
                 $modeText = $modeNode->text();
                 $modeArray = explode(',', $modeText);
                 foreach ($modeArray as $mode) {
-                    $modes[] = $mode;
+                    $modes[] = trim($mode);
                 }
                 return $modes;
             }
@@ -264,7 +305,6 @@ class Scraper
         $badges = [
             'top' => false,
             'new' => false,
-            'best' => false,
             'price' => null,
         ];
 
@@ -309,11 +349,6 @@ class Scraper
                     if ($priceNode->count()) {
                         $badges['price'] = $priceNode->text();
                     }
-                }
-
-                // best
-                if ($isBestNode->count()) {
-                    $badges['best'] = true;
                 }
             }
         }

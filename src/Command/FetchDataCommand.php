@@ -34,14 +34,12 @@ class FetchDataCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $urls = $this->urlRepository->findAll();
 
-
         $index = $this->initOrGetLastIndex();
         $io->progressStart(count($urls) - $index);
 
         //$this->send("https://www.m2iformation.fr/formation-word-initiation-etre-operationnel-pour-creer-des-documents-simples/WOR-IN/", 0);
 
-        //for ($i = $index; $i < count($urls); $i++) {
-        for ($i = $index; $i < 1; $i++) {
+        for ($i = $index; $i < count($urls); $i++) {
             try {
                 $this->send($urls[$i], $i);
                 $io->progressAdvance();
@@ -91,8 +89,11 @@ class FetchDataCommand extends Command
         $data = new stdClass();
         $data->title = $this->scraper->scrapTitle($crawler);
 
-        /** @var array fullDate */
         $data->fullDate = $this->scraper->scrapFullDate($crawler);
+        $data->certify = $this->scraper->scrapCertifying($crawler);
+        $data->certifyContent = $this->scraper->scrapCertifyingContent($crawler);
+        $data->cpf = $this->scraper->scrapCPF($crawler);
+        $data->opca = $this->scraper->scrapOPCA($crawler);
 
         $data->libDispForm = $this->scraper->scrapLibDispForm($crawler);
         $data->modes = $this->scraper->scrapModes($crawler);
@@ -108,13 +109,9 @@ class FetchDataCommand extends Command
         $data->comment = $this->scraper->scrapComment($crawler);
         $data->url = $url;
         $data->pdf = $this->scraper->scrapPDF($crawler);
-        $data->cpf = $this->scraper->scrapCPF($crawler);
         $data->category = $this->scraper->scrapCategory($crawler);
         $data->ref = $this->scraper->scrapRef($url);
-        $data->certify = $this->scraper->scrapCertifying($crawler);
-        $data->opca = $this->scraper->scrapOPCA($crawler);
 
-        /** @var array badges */
         $data->badges = $this->scraper->scrapBadges($crawler, $url, $client);
 
         return $data;
@@ -157,9 +154,9 @@ class FetchDataCommand extends Command
             'categorie'                             => $data->category,
             'modalites'                             => $data->modes,
             'lib_disp_form'                         => $data->libDispForm,
-            'best'                                  => $data->badges['best'],
             'top_vente'                             => $data->badges['top'],
             'certifiant'                            => $data->certify,
+            'certifiantContent'                     => $data->certifyContent,
             'cpf'                                   => $data->cpf,
             'nouveaute'                             => $data->badges['new'],
             'opca'                                  => $data->opca,
